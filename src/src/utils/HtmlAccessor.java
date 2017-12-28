@@ -1,23 +1,21 @@
-package utils;
+package src.utils;
 
-import utils.observer.HtmlObserver;
+import src.utils.observer.HtmlObserver;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class HtmlUtils implements Runnable {
+public class HtmlAccessor implements Runnable {
     private boolean runFlag;
     private InputStream is;
     private HtmlObserver observer;
 
-    public HtmlUtils() {
-        runFlag = true;
-        Thread thread = new Thread(this);
-        thread.start();
-    }
+    private Map<String, String> attrs = new HashMap<>();
 
     public void setObserver(HtmlObserver observer) {
         this.observer = observer;
@@ -29,6 +27,42 @@ public class HtmlUtils implements Runnable {
         }
     }
 
+    public void addAttrs(final String attr, final String value) {
+        attrs.put(attr, value);
+    }
+
+    public String getHtmlSyc(final String url) throws Exception {
+        result = new StringBuilder();
+        URL realUrl = new URL(url);
+        URLConnection connection = realUrl.openConnection();
+        for (Map.Entry<String, String> e : attrs.entrySet()) {
+            connection.addRequestProperty(e.getKey(), e.getValue());
+        }
+        connection.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36");
+        connection.connect();
+        is = connection.getInputStream();
+        int count = 0;
+        while (true) {
+            byte[] buf = new byte[BUF_SIZE];
+            try {
+                count = is.read(buf);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (count == -1) {
+                is.close();
+                is = null;
+                break;
+            } else if (count == 0) {
+                is.close();
+                throw new Exception("error");
+            } else {
+                result.append(bytel2string(buf, count));
+            }
+        }
+        return result.toString();
+    }
+
     public void getHtml(final String url) {
         result = new StringBuilder();
         try {
@@ -37,6 +71,9 @@ public class HtmlUtils implements Runnable {
             connection.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36");
             connection.connect();
             is = connection.getInputStream();
+            runFlag = true;
+            Thread thread = new Thread(this);
+            thread.start();
         } catch (Exception e) {
             e.printStackTrace();
         }

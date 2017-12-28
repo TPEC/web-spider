@@ -1,4 +1,4 @@
-package utils.observer;
+package src.utils.observer;
 
 public class FunctionHtmlObserver implements HtmlObserver {
 

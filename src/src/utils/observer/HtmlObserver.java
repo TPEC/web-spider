@@ -1,4 +1,4 @@
-package utils.observer;
+package src.utils.observer;
 
 public interface HtmlObserver {
     void onFinish(String data);
