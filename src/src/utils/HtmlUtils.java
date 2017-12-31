@@ -11,19 +11,19 @@ public class HtmlUtils {
     public static List<SimpleTag> getSimpleTags(String html, String tagName) {
         String findStr = "<" + tagName;
         List<SimpleTag> tags = new ArrayList<>();
-        int i = -1;
-        while ((i = html.indexOf(findStr, i + 1)) >= 0) {
+        int i = -findStr.length();
+        while ((i = html.indexOf(findStr, i + findStr.length())) >= 0) {
             char c = html.charAt(i + findStr.length());
             if (c == ' ' || c == '>' || (c == '/' && html.charAt(i + findStr.length() + 1) == '>')) {
                 SimpleTag tag = new SimpleTag(html.substring(i + 1, i + findStr.length()));
                 Map<String, String> attrs = new HashMap<>();
                 int start;
                 if ((start = getAttrs(html, i + findStr.length() + 1, attrs)) >= 0 || c == '>') {
-                    int end = html.indexOf("</" + tagName + ">", i);
-                    if (end > 0) {
+                    int end = html.indexOf("</" + tagName + ">", start + 1);
+                    if (end >= 0) {
                         tag.setContent(html.substring(start, end));
+                        i = end + findStr.length() + 1;
                     }
-                    i = end + findStr.length() + 1;
                 } else {
                     i += findStr.length();
                 }
@@ -86,6 +86,28 @@ public class HtmlUtils {
             return true;
         }
         return false;
+    }
+
+    public static String getAbsoluteUrl(String url, String root) {
+        if (url.startsWith("/")) {
+            return getPureRootUrl(root) + url;
+        }
+        return url;
+    }
+
+    /**
+     * 去除 '?'及之后的内容
+     *
+     * @param url
+     * @return
+     */
+    private static String getPureRootUrl(String url) {
+        String r = url.split("\\?")[0];
+        int i = r.indexOf('/', 8);
+        if (i >= 0) {
+            return r.substring(0, i);
+        }
+        return r;
     }
 
 

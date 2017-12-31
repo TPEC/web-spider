@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="IoSpider:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/IoSpider_jar</output-path>
+    <root id="archive" name="IoSpider.jar">
+      <element id="module-output" name="IoSpider" />
+      <element id="module-output" name="WebSpider" />
+    </root>
+  </artifact>
+</component>
